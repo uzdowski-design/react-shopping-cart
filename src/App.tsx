@@ -36,11 +36,39 @@ const App = () => {
   console.log(data)
 
   const getTotalItems = (items: CartItemType[]) =>
-    items.reduce((acumulator: number, item) => acumulator + item.amount, 0)
+    items.reduce((acc: number, item) => acc + item.amount, 0)
 
-  const handleAddToCart = (clickedItem: CartItemType) => null;
+  const handleAddToCart = (clickedItem: CartItemType) => {
+    setCartItems(prev => {
+      // is item in the cart already?
+      const isItemInCart = prev.find(item => item.id === clickedItem.id)
 
-  const handleRemoveFromCart = () => null;
+      if (isItemInCart) {
+        return prev.map(item => (
+          item.id === clickedItem.id
+            ? { ...item, amount: item.amount + 1 }
+            : item
+        ))
+      }
+
+      // First time the item is added
+      return [...prev, { ...clickedItem, amount: 1 }]
+
+    })
+  };
+
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems(prev =>
+      prev.reduce((acc, item) => {
+        if (item.id === id) {
+          if (item.amount === 1) return acc;
+          return [...acc, { ...item, amount: item.amount - 1 }];
+        } else {
+          return [...acc, item];
+        }
+      }, [] as CartItemType[])
+    );
+  };
 
   if (isLoading) return <LinearProgress />
   // if (isLoading) return <CircularProgress />
